@@ -13,20 +13,22 @@ echo 1 > /proc/sys/net/ipv4/ip_forward
 sed -i "s/#net.ipv4.ip_forward/net.ipv4.ip_forward/g" /etc/sysctl.conf
 ufw allow https
 sed -i "s/DEFAULT_FORWARD_POLICY=\"DROP\"/DEFAULT_FORWARD_POLICY=\"ACCEPT\"/g" /etc/default/ufw
-rm -rf /etc/openvpn
+rm -rf /etc/openvpn/easy-rsa/
 cp -r /usr/share/easy-rsa/ /etc/openvpn
 cd /etc/openvpn/easy-rsa
+mkdir keys
 source vars
 touch /etc/openvpn/easy-rsa/keys/index.txt
 echo 490B82C4000000000075 > /etc/openvpn/easy-rsa/keys/serial
+openssl dhparam -out /etc/openvpn/dh2048.pem 2048
 ./pkitool --initca
 ./pkitool --server server
 ./pkitool client1
 cp /etc/openvpn/easy-rsa/keys/ca* /etc/openvpn/
 cp /etc/openvpn/easy-rsa/keys/server.* /etc/openvpn/
 
-mv /etc/ufw/before.rules ~/
-head ~/before.rules -n 10 >> /etc/ufw/before.rules
+mv /etc/ufw/before.rules /etc/ufw/before.rules.bkp
+head /etc/ufw/before.rules.bkp -n 10 >> /etc/ufw/before.rules
 cat <<EOF >> /etc/ufw/before.rules
 # START OPENVPN RULES
 # NAT table rules
@@ -37,8 +39,8 @@ cat <<EOF >> /etc/ufw/before.rules
 COMMIT
 # END OPENVPN RULES
 EOF
-tail ~/before.rules -n 68 >> /etc/ufw/before.rules
-
+tail /etc/ufw/before.rules.bkp -n 68 >> /etc/ufw/before.rules
+yes | ufw enable
 ## all thing being equal we should now be able to start the server
 server openvpn start
 cat <<EOF > ~/client1.ovpn
