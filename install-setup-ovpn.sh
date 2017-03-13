@@ -1,5 +1,5 @@
 sudo su - ## make me root
-if [ -f ~/client1.ovpn ] ; then logger -t install "already installed SMS" && exit ; else logger -t install "install openvpn SMS" ; fi
+#if [ -f ~/client1.ovpn ] ; then logger -t install "already installed SMS" && exit ; else logger -t install "install openvpn SMS" ; fi
 
 apt-get install openvpn easy-rsa -y
 gunzip -c /usr/share/doc/openvpn/examples/sample-config-files/server.conf.gz > /etc/openvpn/server.conf
@@ -13,7 +13,7 @@ echo 1 > /proc/sys/net/ipv4/ip_forward
 sed -i "s/#net.ipv4.ip_forward/net.ipv4.ip_forward/g" /etc/sysctl.conf
 ufw allow https
 sed -i "s/DEFAULT_FORWARD_POLICY=\"DROP\"/DEFAULT_FORWARD_POLICY=\"ACCEPT\"/g" /etc/default/ufw
-
+rm -rf /etc/openvpn
 cp -r /usr/share/easy-rsa/ /etc/openvpn
 cd /etc/openvpn/easy-rsa
 source vars
