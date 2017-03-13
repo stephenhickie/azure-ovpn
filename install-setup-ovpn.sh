@@ -1,3 +1,4 @@
+exit 0
 sudo su - ## make me root
 #if [ -f ~/client1.ovpn ] ; then logger -t install "already installed SMS" && exit ; else logger -t install "install openvpn SMS" ; fi
 
