@@ -1,4 +1,4 @@
-sudo su - ## make me root
+#sudo su - ## make me root
 if [ -f ~/client1.ovpn ] ; then logger -t install "already installed SMS" && exit ; else logger -t install "install openvpn SMS" ; fi
 
 apt-get install openvpn easy-rsa -y
@@ -42,7 +42,7 @@ EOF
 tail /etc/ufw/before.rules.bkp -n 68 >> /etc/ufw/before.rules
 yes | ufw enable
 ## all thing being equal we should now be able to start the server
-server openvpn start
+server openvpn restart
 cat <<EOF > ~/client1.ovpn
 client
 dev tun
