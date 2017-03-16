@@ -1,0 +1,23 @@
+#!/bin/bash
+#azure login
+#azure config mode arm
+{ ## Save all the output for later please
+# source the parameters file
+. ./$1
+
+echo resource group is $rg
+azure group create $rg $location -t $tags
+
+azure network vnet create $rg $vnet $location -t $tags -a $vnetprefix -d $dnsservers
+#create route table
+#create networkSecurityGroup
+#create subnet
+
+#create 2 nics
+#create 2 vms with the nics
+
+#call automation to build 
+
+
+
+} 2>&1 | tee -a $2

@@ -20,29 +20,42 @@ mkdir keys
 source vars
 touch /etc/openvpn/easy-rsa/keys/index.txt
 echo 490B82C4000000000075 > /etc/openvpn/easy-rsa/keys/serial
-openssl dhparam -out /etc/openvpn/dh2048.pem 2048
+
+## Ahh .. the diffe hack  ... sorry about this crypto peeps
+#openssl dhparam -out /etc/openvpn/dh2048.pem 2048
+cat <<EOF > /etc/openvpn/dh2048.pem
+-----BEGIN DH PARAMETERS-----
+MIIBCAKCAQEAosbDpJV+2hSxgZW/KKAtLRI0ARJlv+82kPoyeJh6uprCcGfHq/vV
+4QXB1esAnJ8v1/zKaBAOiGUpBihYvM6j9PWq0RlLSmWCvXyaVJ5V0GMK3zYTUd1h
+yMzk7eQx2krTHwq6okTuSJDsxlbNrbN8zDIuStMe9FEr9ASfx8p4t/qYS9OMD5DE
+8zfxBV2pTg1195UHqpzaf8HOjstGSTCpIGgrifrTDmcA1UnZIKjXdCKok0xXAcDF
+D0x7G9vFnEz9+qR9jY56R6sR+pW6r/+DN7V0tPQ29Ro4f5DSNdsKeZQsJjZZBTS0
+mvhZ0msr6kn9kujczJEQL0XwAdqY9x7aGwIBAg==
+-----END DH PARAMETERS-----
+EOF
+
 ./pkitool --initca
 ./pkitool --server server
 ./pkitool client1
 cp /etc/openvpn/easy-rsa/keys/ca* /etc/openvpn/
 cp /etc/openvpn/easy-rsa/keys/server.* /etc/openvpn/
-
-mv /etc/ufw/before.rules /etc/ufw/before.rules.bkp
-head /etc/ufw/before.rules.bkp -n 10 >> /etc/ufw/before.rules
-cat <<EOF >> /etc/ufw/before.rules
-# START OPENVPN RULES
-# NAT table rules
-*nat
-:POSTROUTING ACCEPT [0:0]
-# Allow traffic from OpenVPN client to eth0
--A POSTROUTING -s 10.8.0.0/8 -o eth0 -j MASQUERADE
-COMMIT
-# END OPENVPN RULES
-EOF
-tail /etc/ufw/before.rules.bkp -n 68 >> /etc/ufw/before.rules
-yes | ufw enable
+ufw disable
+#mv /etc/ufw/before.rules /etc/ufw/before.rules.bkp
+#head /etc/ufw/before.rules.bkp -n 10 >> /etc/ufw/before.rules
+#cat <<EOF >> /etc/ufw/before.rules
+## START OPENVPN RULES
+## NAT table rules
+#*nat
+#:POSTROUTING ACCEPT [0:0]
+## Allow traffic from OpenVPN client to eth0
+#-A POSTROUTING -s 10.8.0.0/8 -o eth0 -j MASQUERADE
+#COMMIT
+## END OPENVPN RULES
+#EOF
+#tail /etc/ufw/before.rules.bkp -n 68 >> /etc/ufw/before.rules
+#yes | ufw enable
 ## all thing being equal we should now be able to start the server
-server openvpn restart
+
 cat <<EOF > ~/client1.ovpn
 client
 dev tun
@@ -63,3 +76,5 @@ echo \</cert\> >> ~/client1.ovpn
 echo \<key\> >> ~/client1.ovpn
 cat /etc/openvpn/easy-rsa/keys/client1.key >> ~/client1.ovpn
 echo \</key\> >> ~/client1.ovpn
+
+service openvpn restart
