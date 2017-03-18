@@ -40,6 +40,7 @@ echo resource group is $rg
 #call automation to build
 # already done ... --> azure vm extension set $rg $vm1name CustomScript Microsoft.Azure.Extensions 2.0 --auto-upgrade-minor-version --public-config '{"fileUris": ["https://raw.githubusercontent.com/stephenhickie/azure-ovpn/master/install-setup-ovpn.sh"],"commandToExecute": "sudo bash -x ./install-setup-ovpn.sh"}'
 
-azure vm delete $rg $vm2name $location $vm2ostype
+azure vm delete $rg $vm2name -q
+azure vm delete $rg $vm1name -q
 
 } 2>&1 | tee -a $2
