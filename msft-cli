@@ -6,11 +6,13 @@
 . ./$1
 
 echo Building OpenVPN SSL Routing Group .. Main Resource group is $rg
+echo ------------------------------------------------------------------------------
+date
 
 #create the resoure group
 azure group create $rg $location -t $tags
 
-#Create storage account
+#Create storage account ... this is currently taking too long so fork it to the background
 azure storage account create $storageaccount --sku-name $storageaccounttype -g $rg -l $location --tags $tags --kind $storageaccountkind
 
 ## Create Vnets
@@ -43,6 +45,12 @@ azure vm extension set $rg $vm1name CustomScript Microsoft.Azure.Extensions 2.0 
 
 #create second vm
 azure vm create $rg $vm2name $location $vm2ostype -f $vm2nic -Q $vm2imageurn -u $vm2adminusername -M $vm2sshkey -o $storageaccount -z $vm1size
+
+
+
+echo All done, if the God of Demos has been kind
+echo -------------------------------------------
+date
 
 
 } 2>&1 | tee -a $2

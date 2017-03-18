@@ -6,6 +6,8 @@
 . ./$1
 
 echo Deleting everything in resource group is $rg
+echo ------------------------------------------------------------------------------
+date
 
 azure vm delete $rg $vm2name -q
 azure vm delete $rg $vm1name -q
@@ -19,6 +21,8 @@ azure network vnet delete $rg $vnet -q
 azure storage account delete $storageaccount -g $rg -q
 azure group delete $rg $location -q
 
-
+echo All done, if the God of Demos has been kind
+echo -------------------------------------------
+date
 
 } 2>&1 | tee -a $2
