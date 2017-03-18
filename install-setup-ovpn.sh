@@ -7,7 +7,7 @@ sed -i "s/dh1024/dh2048/g" /etc/openvpn/server.conf
 sed -i "s/port 1194/port 443/g" /etc/openvpn/server.conf
 sed -i "s/proto udp/proto tcp/g" /etc/openvpn/server.conf
 subnet=$(netstat -tr | head -n 4 | tail -n 1 | cut -d ' ' -f1)
-netmask=$(netstat -tr | head -n 4 | tail -n 1 | cut -d ' ' -f23)
+netmask=$(ifconfig eth0 | grep Mask | cut -d':' -f 4)
 echo "push route $subnet $netmask" >> /etc/openvpn/server.conf
 echo 1 > /proc/sys/net/ipv4/ip_forward
 sed -i "s/#net.ipv4.ip_forward/net.ipv4.ip_forward/g" /etc/sysctl.conf
