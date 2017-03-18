@@ -5,41 +5,43 @@
 # source the parameters file
 . ./$1
 
-echo resource group is $rg
-# already done ... --> azure group create $rg $location -t $tags
+echo Building OpenVPN SSL Routing Group .. Main Resource group is $rg
+
+#create the resoure group
+azure group create $rg $location -t $tags
 
 #Create storage account
-# already done ... --> azure storage account create $storageaccount --sku-name $storageaccounttype -g $rg -l $location --tags $tags --kind $storageaccountkind
+azure storage account create $storageaccount --sku-name $storageaccounttype -g $rg -l $location --tags $tags --kind $storageaccountkind
 
 ## Create Vnets
-# already done ... --> azure network vnet create $rg $vnet $location -t $tags -a $vnetprefix -d $dnsservers
-# already done ... --> azure network route-table create $rg $routetable $location -t $tags
-# already done ... --> azure network route-table route create $rg $routetable -n $routename $openvpnrouteprefix VirtualAppliance -p $vm1nicip
+azure network vnet create $rg $vnet $location -t $tags -a $vnetprefix -d $dnsservers
+azure network route-table create $rg $routetable $location -t $tags
+azure network route-table route create $rg $routetable -n $routename $openvpnrouteprefix VirtualAppliance -p $vm1nicip
 
 #create nsg
-# already done ... --> azure network nsg create $rg $nsgname $location -t $tags
-# already done ... --> azure network nsg rule create $rg $nsgname $nsgrule1 $nsgrule1priority -p $nsg1protocol -u $nsg1port
-# already done ... --> azure network nsg rule create $rg $nsgname $nsgrule2 $nsgrule2priority -p $nsg2protocol -u $nsg2port
+azure network nsg create $rg $nsgname $location -t $tags
+azure network nsg rule create $rg $nsgname $nsgrule1 $nsgrule1priority -p $nsg1protocol -u $nsg1port
+azure network nsg rule create $rg $nsgname $nsgrule2 $nsgrule2priority -p $nsg2protocol -u $nsg2port
 
 #create public IP
-# already done ... --> azure network public-ip create $rg $vm1publicipname $location -t $tags -a $vm1publicipallocation
+azure network public-ip create $rg $vm1publicipname $location -t $tags -a $vm1publicipallocation
 
 #create subnet and set the security group on that
-# already done ... --> azure network vnet subnet create $rg $vnet $subnetname $subnetprefix -r $routetable -o $nsgname
+azure network vnet subnet create $rg $vnet $subnetname $subnetprefix -r $routetable -o $nsgname
 
 # create the first nic
-# already done ... --> azure network nic create $rg $vm1nic $location --enable-ip-forwarding true  --subnet-name $subnetname --subnet-vnet-name $vnet -p $vm1publicipname -a $vm1nicip -t $tags
+azure network nic create $rg $vm1nic $location --enable-ip-forwarding true  --subnet-name $subnetname --subnet-vnet-name $vnet -p $vm1publicipname -a $vm1nicip -t $tags
 
 # create the second nic
-# already done ... --> azure network nic create $rg $vm2nic $location --subnet-name $subnetname --subnet-vnet-name $vnet -a $vm2nicip -t $tags
+azure network nic create $rg $vm2nic $location --subnet-name $subnetname --subnet-vnet-name $vnet -a $vm2nicip -t $tags
 
-#create 2 vms with the nics
+#create first vm
+azure vm create $rg $vm1name $location $vm1ostype -f $vm1nic -Q $vm1imageurn -u $vm1adminusername -M $vm1sshkey -o $storageaccount -z $vm1size
 
-# already done ... --> azure vm create $rg $vm1name $location $vm1ostype -f $vm1nic -Q $vm1imageurn -u $vm1adminusername -M $vm1sshkey -o $storageaccount -z $vm1size
+#call automation to build to install OpenVPN onto this machine
+azure vm extension set $rg $vm1name CustomScript Microsoft.Azure.Extensions 2.0 --auto-upgrade-minor-version --public-config '{"fileUris": ["https://raw.githubusercontent.com/stephenhickie/azure-ovpn/master/install-setup-ovpn.sh"],"commandToExecute": "sudo bash -x ./install-setup-ovpn.sh"}'
 
-#call automation to build
-# already done ... --> azure vm extension set $rg $vm1name CustomScript Microsoft.Azure.Extensions 2.0 --auto-upgrade-minor-version --public-config '{"fileUris": ["https://raw.githubusercontent.com/stephenhickie/azure-ovpn/master/install-setup-ovpn.sh"],"commandToExecute": "sudo bash -x ./install-setup-ovpn.sh"}'
-
+#create second vm
 azure vm create $rg $vm2name $location $vm2ostype -f $vm2nic -Q $vm2imageurn -u $vm2adminusername -M $vm2sshkey -o $storageaccount -z $vm1size
 
 
