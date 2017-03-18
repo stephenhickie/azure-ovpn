@@ -15,19 +15,9 @@ mkdir keys
 source vars
 touch /etc/openvpn/easy-rsa/keys/index.txt
 echo 490B82C4000000000075 > /etc/openvpn/easy-rsa/keys/serial
+## Gnerating a 2048 bit safe prime takes too long .. Let's get a safe random one
 
-## Ahh .. the diffe hack  ... sorry about this crypto peeps
-#openssl dhparam -out /etc/openvpn/dh2048.pem 2048
-cat <<EOF > /etc/openvpn/dh2048.pem
------BEGIN DH PARAMETERS-----
-MIIBCAKCAQEAosbDpJV+2hSxgZW/KKAtLRI0ARJlv+82kPoyeJh6uprCcGfHq/vV
-4QXB1esAnJ8v1/zKaBAOiGUpBihYvM6j9PWq0RlLSmWCvXyaVJ5V0GMK3zYTUd1h
-yMzk7eQx2krTHwq6okTuSJDsxlbNrbN8zDIuStMe9FEr9ASfx8p4t/qYS9OMD5DE
-8zfxBV2pTg1195UHqpzaf8HOjstGSTCpIGgrifrTDmcA1UnZIKjXdCKok0xXAcDF
-D0x7G9vFnEz9+qR9jY56R6sR+pW6r/+DN7V0tPQ29Ro4f5DSNdsKeZQsJjZZBTS0
-mvhZ0msr6kn9kujczJEQL0XwAdqY9x7aGwIBAg==
------END DH PARAMETERS-----
-EOF
+curl https://2ton.com.au/dhparam/2048 > /etc/openvpn/dh2048.pem
 
 ./pkitool --initca
 ./pkitool --server server
