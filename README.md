@@ -2,14 +2,14 @@
 
 This will build an
 
-#Pre-requisites
+# Pre-requisites
 
 1. An Azure subscription
 2. Azure CLI (original, not hot and spicy 2.0) install on your local machine
 3. a machine in your source environment that can run OpenVPN, and can forward from on interfaces
 
 
-#How to use
+# How to use
 1. clone the repo
 2. edit or copy ms-cli-params
 3. login to Azure using azure login and set the mode to ARM. You can do this by removing the first few comments from msft-cli if you like.
